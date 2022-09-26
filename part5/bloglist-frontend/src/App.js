@@ -93,7 +93,7 @@ const App = () => {
       setTitle('')
       setUrl('')
 
-      setMessage(`a new blog ${blogObject.title} by ${blogObject.user} has been added`)
+      setMessage(`a new blog ${blogObject.title} by ${blogObject.user.name} has been added`)
       console.log(message)
       setTimeout(() => {
         setMessage(null)
@@ -117,7 +117,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        <ErrorMessage messages={errorMessage}/>
+        <ErrorMessage message={errorMessage}/>
         <LoginForm handleLogin={handleLogin} username={username} password={password}
         setPassword={setPassword} setUsername={setUsername} />
       </div>
@@ -128,7 +128,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      <ConfirmationMessage messages={message} />
+      <ConfirmationMessage message={message} />
 
       <p> {user.name} is logged in 
       <button onClick={() => logout()}>logout</button> </p>
