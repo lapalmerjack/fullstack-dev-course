@@ -19,9 +19,29 @@ const create = async newObject => {
   return response.data
 }
 
-const getAll = () => {
+const getAll = async () => {
   const request = axios.get(baseUrl)
   return request.then(response => response.data)
 }
 
-export default { getAll, setToken, create }
+const updateLikes = (id, newObject) => {
+  console.log(id, 'is here')
+  console.log(newObject, 'works!')
+ const request = axios.put(`${baseUrl}/${id}`, newObject)
+ return request.then(response => response.data)
+}
+
+const remove = async (id) => {
+
+  const config = {
+    headers: {Authorization: token},
+  }
+
+  console.log(token)
+
+  const response = await axios.delete(`${baseUrl}/${id}`, config)
+
+  return response.data
+}
+
+export default { getAll, setToken, create, updateLikes, remove }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -7,6 +7,7 @@ import ErrorMessage from './components/ErrorMessage'
 import ConfirmationMessage from './components/ConfirmationMessage'
 import BlogForm from './components/BlogForm'
 import './index.css'
+import Togglable from './components/Togglable'
 
 
 const App = () => {
@@ -18,9 +19,6 @@ const App = () => {
   const [message, setMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -38,8 +36,6 @@ const App = () => {
   }, [])
 
 
-
-
   const handleLogin = async (event) => {
     event.preventDefault()
 
@@ -47,8 +43,6 @@ const App = () => {
       const user = await loginService.login({
         username, password
       })
-
-      console.log(user)
 
       window.localStorage.setItem(
         'loggedBlogAppUser', JSON.stringify(user)
@@ -72,26 +66,18 @@ const App = () => {
 
   }
 
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: title,
-      author: author,
-      url: url,
-      user: user
-
-    }
-
+  const addBlog = (blogObject) => {
+    console.log('inside the main frame')
+    blogFormRef.current.toggleVisibility()
     console.log(blogObject)
+
     blogService.setToken(user.token)
 
     blogService
     .create(blogObject)
     .then(returnedBlog => {
       setBlogs(blogs.concat(returnedBlog))
-      setAuthor('')
-      setTitle('')
-      setUrl('')
+   
 
       setMessage(`a new blog ${blogObject.title} by ${blogObject.user.name} has been added`)
       console.log(message)
@@ -104,12 +90,59 @@ const App = () => {
 
   } 
 
+  const updateLikes = id => {
+    const blog = blogs.find(n => n.id === id)
+    const user = blog.user
+    const changedBlog = {...blog, likes: blog.likes +1}
+
+
+    blogService
+      .updateLikes(id, changedBlog)
+      .then(returnedBlog => {
+        const newReturnedBlog = {...returnedBlog, user: user} 
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : newReturnedBlog))
+      })
+      .catch(error => {
+        setErrorMessage('Error has been found: ', error)
+      })
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+     
+
+  }
+
+  const deleteBlog = id => {
+
+    const blog = blogs.find(b => b.id === id)
+    const deletedBlog = {...blog}
+
+    blogService.setToken(user.token)
+  
+
+    console.log(deletedBlog, 'this to be deleted')
+
+    if(window.confirm(`Remove blog ${blog.title} by ${blog.user.name}?`)) {
+      blogService
+        .remove(id)
+        .then(deleted => {
+          setBlogs(blogs.filter(b => b.id !== id))
+        }).catch(error => {
+          setMessage('Error has occured: ', error)
+        })
+    }
+
+  }
+
   const logout = () => {
 
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
 
   }
+
+
+  const blogFormRef = useRef()
 
 
 
@@ -124,6 +157,11 @@ const App = () => {
     )
   }
 
+  const sortByLikes = [...blogs].sort((a, b) => b.likes - a.likes);
+
+  console.log(user)
+
+
   return (
     <div>
       <h2>blogs</h2>
@@ -133,13 +171,12 @@ const App = () => {
       <p> {user.name} is logged in 
       <button onClick={() => logout()}>logout</button> </p>
 
-      <h2>create new</h2>
-      <BlogForm addBlog={addBlog} title={title} setTitle={setTitle}
-            author={author} setAuthor={setAuthor} url={url}
-            setUrl={setUrl}  />
+      <Togglable buttonLabel="new blog" ref={blogFormRef} > 
+      <BlogForm createBlog={addBlog} user={user} /></Togglable>
       
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      {sortByLikes.map(blog =>
+        <Blog key={blog.id} blog={blog} 
+          updateLikes = {() => updateLikes(blog.id)} user = {user} deleteBlog={() => deleteBlog(blog.id)}/>
       )}
     </div>
   )
