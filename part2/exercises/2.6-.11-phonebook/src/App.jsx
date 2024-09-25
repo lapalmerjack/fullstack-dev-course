@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react'
-import Person from './components/person'
+import Person from './components/Person'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import { useEffect } from 'react'
@@ -42,7 +42,6 @@ const App = () => {
 
   const deletePerson = id => {
     console.log(id)
-   
     const person = filteredPersons.find(p => p.id === id)
     console.log(person, ' will be deleted')
 
@@ -50,7 +49,6 @@ const App = () => {
       personService.remove(person.id)
       .then(response => {
         console.log(`${response} was deleted from server`)
-
         setPersons(persons.filter(p => p.id !== id));
         setFilteredPersons(filteredPersons.filter(p => p.id !== id));
       // eslint-disable-next-line no-unused-vars

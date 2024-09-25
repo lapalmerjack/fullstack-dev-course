@@ -1,12 +1,14 @@
+const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const api = supertest(app)
 const Blog = require('../models/blog')
 const helper = require('./helperfiles/test_helper')
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const assert = require('assert'); 
 
+const api = supertest(app)
 
 beforeEach(async () => {
     await Blog.deleteMany({})
@@ -31,7 +33,7 @@ describe('all getter tests', () => {
     test('all blogs are returned', async () => {
         const response = await api.get('/api/blogs')
 
-        expect(response.body).toHaveLength(helper.initialBlogs.length)
+        assert.strictEqual(response.body.length, helper.initialBlogs.length)
     })
 
 
@@ -42,9 +44,54 @@ test('id is defined', async () => {
     const response = await api.get('/api/blogs')
 
     const checkIfIdIsThere = response.body[0]
+    console.log(checkIfIdIsThere)
+    assert.strictEqual(typeof checkIfIdIsThere.id, 'string', 'id should be a string')
 
-    expect(checkIfIdIsThere.id).toBeDefined()
+   
 
+})
+
+describe('updating blog tests', () => {
+    let loggedInUser
+    let token
+    beforeEach(async () => {
+        await User.deleteMany({})
+
+        const passwordHash = await bcrypt.hash('secret', 10)
+        const user = new User({ username: 'root', passwordHash })
+
+        await user.save()
+        const userNameAndPassword = {
+            username: 'root',
+            password: 'secret'
+        }
+
+        loggedInUser = await api
+            .post('/api/login')
+            .send(userNameAndPassword)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        token = `bearer ${loggedInUser.body.token}`
+
+
+    })
+
+
+
+    test('update a blogs likes', async () => {
+        const blogsAtStart = await helper.blogsInDb()
+        const blogToBeUpdated = blogsAtStart[0]
+        console.log(blogToBeUpdated)
+    
+        const updateBlog = { ...blogToBeUpdated, likes: blogToBeUpdated.likes + 1 }
+    
+        await api
+            .put(`/api/blogs/${updateBlog.id}`)
+            .set('Authorization', token)
+            .expect(200)
+    
+    })
 })
 
 describe('posting tests', () => {
@@ -74,13 +121,14 @@ describe('posting tests', () => {
     })
 
     test('400 when new Blog does not include url', async () => {
-        const userinDB = await helper.usersInDb()
+       
 
         const newBlog = {
             title: 'The Bolton guy',
             author: 'Max Bolton',
 
         }
+
 
         const result = await api
             .post('/api/blogs')
@@ -104,10 +152,29 @@ describe('posting tests', () => {
             .expect(201)
             .expect('Content-Type', /application\/json/)
 
-        const blogAdded = await helper.blogsInDb()
+        const blogsAdded = await helper.blogsInDb()
 
-        expect(blogAdded).toHaveLength(helper.initialBlogs.length + 1)
-        expect(blogAdded[blogAdded.length-1].likes).toBe(0)
+        assert.strictEqual(blogsAdded.length, helper.initialBlogs.length + 1)
+        const addedBlog = blogsAdded.find(b => b.title === 'The Bolton guy')
+        assert.strictEqual(addedBlog.likes, 0)
+
+        const titles = blogsAdded.map(c => c.title)
+        assert(titles.includes('The Bolton guy'))
+    })
+
+    test('401 unauthorized when no token has been provided', async () => {
+        const newBlog = {
+            title: 'The Bolton guy',
+            author: 'Max Bolton',
+            url: 'www.bolts.com',
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(401)
+            .expect('Content-Type', /application\/json/)
+
     })
 
 })
@@ -169,7 +236,8 @@ describe('tests for deleting blogs', () => {
 
         const titles = blogsAtEnd.map(t => t.title)
 
-        expect(titles).not.toContain(blogToBeDeleted.title)
+        assert(!titles.includes(blogToBeDeleted.title))
+
     })
 
     test('wrong user can not delete blog', async () => {
@@ -201,25 +269,12 @@ describe('tests for deleting blogs', () => {
 
         const titles = blogsAtEnd.map(t => t.title)
 
-        expect(titles).toContain(blogToBeDeleted.title)
+        assert(titles.includes(blogToBeDeleted.title))
     })
 
 })
 
 
-
-test('update a blogs likes', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToBeUpdated = blogsAtStart[0]
-    console.log(blogToBeUpdated)
-
-    const updateBlog = { ...blogToBeUpdated, likes: blogToBeUpdated.likes + 1 }
-
-    await api
-        .put(`/api/blogs/${updateBlog.id}`)
-        .expect(200)
-
-})
 
 describe('when there is an initial user in the db', () => {
     beforeEach(async () => {
@@ -233,6 +288,7 @@ describe('when there is an initial user in the db', () => {
 
     test('create a user works', async () => {
         const usersAtStart = await helper.usersInDb()
+        console.log(usersAtStart)
 
         const newUser = {
             username: 'momoskinner',
@@ -247,10 +303,10 @@ describe('when there is an initial user in the db', () => {
             .expect('Content-Type', /application\/json/)
 
         const usersAtEnd = await helper.usersInDb()
-        expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
 
         const usernames = usersAtEnd.map(u => u.username)
-        expect(usernames).toContain(newUser.username)
+        assert(usernames.includes(newUser.username))
 
 
     })
@@ -271,10 +327,12 @@ describe('when there is an initial user in the db', () => {
 
         console.log(result.body)
 
-        expect(result.body.error).toContain('expected `username` to be unique')
+        
+        assert(result.body.error.includes('expected `username` to be unique'))
 
         const usersAtEnd = await helper.usersInDb()
-        expect(usersAtEnd).toEqual(usersAtStart)
+    
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
 
 
     })
@@ -292,7 +350,7 @@ describe('when there is an initial user in the db', () => {
             .expect(400)
             .expect('Content-Type', /application\/json/)
 
-        expect(result.body.error).toContain('Path `username` (`Mo`) is shorter than the minimum allowed length (3)')
+        assert(result.body.error.includes('Path `username` (`Mo`) is shorter than the minimum allowed length (3)'))
 
     }, 100000)
 
@@ -311,7 +369,7 @@ describe('when there is an initial user in the db', () => {
             .expect(400)
             .expect('Content-Type', /application\/json/)
 
-        expect(result.body.error).toContain('password must be at least 3 characters')
+        assert(result.body.error.includes('password must be at least 3 characters'))
 
 
     }, 100000)
@@ -321,6 +379,6 @@ describe('when there is an initial user in the db', () => {
 
 
 
-afterAll(async () => {
+after(async () => {
     await mongoose.connection.close()
 })

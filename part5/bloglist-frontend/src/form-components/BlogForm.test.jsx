@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import BlogForm from '../form-components/BlogForm'
+import BlogForm from './BlogForm'
 
 test('testing the Blogform', async () => {
   const blog = {
@@ -14,8 +14,8 @@ test('testing the Blogform', async () => {
   const blogUser = { username: 'crazydude17' }
 
 
-  const createBlog = jest.fn()
-  const setMessage = jest.fn()
+  const createBlog = vi.fn()
+  const setMessage = vi.fn()
   render(<BlogForm createBlog={createBlog} user={blogUser} setMessage={setMessage} />)
 
   const urlInput = screen.getByPlaceholderText('url')

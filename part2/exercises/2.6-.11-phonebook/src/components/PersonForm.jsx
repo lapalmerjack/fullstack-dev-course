@@ -2,7 +2,8 @@
 import { useState } from "react"
 import personService from '../services/persons'
 
-const PersonForm = ({persons, setPersons, filteredPersons, setFilteredPersons, setMessage}) => {
+const PersonForm = ({persons, setPersons, filteredPersons,
+   setFilteredPersons, setMessage}) => {
 
   
   const [newName, setNewName] = useState('')
@@ -22,10 +23,10 @@ const handleNumberChange = (event) => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    console.log(newName, 'is here')
+  
 
     const newPerson = persons.find(person => newName === person.name)
-    console.log(newPerson)
+  
     if(newPerson) {
      updatePhoneNumber(newPerson)
     } else {

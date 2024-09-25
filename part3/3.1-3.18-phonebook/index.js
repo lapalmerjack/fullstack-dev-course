@@ -1,7 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const cors = require('cors')
-require('dotenv').config()
 const morgan = require('morgan')
 
 
@@ -23,7 +23,7 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
+  } else if (error.name == 'ValidationError') {
     return response.status(400).json({ error: error.message })
   }
 
@@ -77,20 +77,20 @@ app.get('/api/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) =>  {
-  const id = Number(request.params.id)
+  Person.findById(request.params.id).then(person => {
+    if(person) { response.json(person)
+    } else {
+  response.status(404)}
+  }).catch(error => next(error))
 
 
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
-
-
-
+  const myconst = 4 == 4 
   Person.findByIdAndUpdate(
-    request.params.id,
-    { name, number },
-    { new: true, runValidators: true, context: 'query' } )
+    request.params.id, { name, number },{ new: true, runValidators: true, context: 'query' } )
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
