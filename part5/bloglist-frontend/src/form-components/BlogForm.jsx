@@ -2,10 +2,11 @@ import { useState, } from 'react'
 import blogService from '../services/blogs'
 
 
-const BlogFormInput = ({ value, onChange, inputName }) => (
+const BlogFormInput = ({ value, onChange, inputName, myId }) => (
   <div>
     {inputName} :
     <input
+      data-testid={myId}
       type="text"
       value={value}
       onChange={onChange}
@@ -64,9 +65,9 @@ const BlogForm = ({ setMessage, user, createBlog }) => {
 
 
       <form onSubmit={addBlog}>
-        <BlogFormInput value={title} onChange={handleTitleChange} inputName="title" />
-        <BlogFormInput value={author} onChange={handleAuthorChange} inputName="author" />
-        <BlogFormInput value={url} onChange={handleUrlChange} inputName="url" />
+        <BlogFormInput value={title} onChange={handleTitleChange} inputName="title" myId={'title'} />
+        <BlogFormInput value={author} onChange={handleAuthorChange} inputName="author" myId={'author'}/>
+        <BlogFormInput value={url} onChange={handleUrlChange} inputName="url" myId={'url'} />
         <button type="submit">create</button>
       </form>
 

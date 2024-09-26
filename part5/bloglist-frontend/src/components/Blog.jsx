@@ -36,6 +36,7 @@ const Blog = ({ blog, user, updateLikes, deleteBlog }) => {
     const blogId = blog.id
     const confirmation = window.confirm(`Removing blog ${blog.title} by ${blog.author}`)
     if(confirmation) {
+      console.log('in here')
       deleteBlog(blogId)
     }
 
@@ -55,12 +56,12 @@ const Blog = ({ blog, user, updateLikes, deleteBlog }) => {
   if (sameUser) {
     return (
       <div className="blog" style={blogStyle}>
-        <div>
+   
           {blog.title} {blog.author}
           <button onClick={() => setshowAllInfo(!showAllInfo)}>{showAllInfo ? 'hide' : 'view'}</button>
           {showInfo}
-        </div>
-        <button  onClick={blogDeleter}>remove</button>
+          <br />
+          <button  onClick={blogDeleter}>remove</button>
       </div>
 
     )

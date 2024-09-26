@@ -39,14 +39,18 @@ const LoginForm = ({ setErrorMessage, setUser }) => {
     <form onSubmit={handleLogin}>
       <div>
             username
-        <input type="text"
+        <input
+          data-testid='username' 
+          type="text"
           value={username}
           name="Username"
           onChange={({ target }) => setUsername(target.value)} />
       </div>
       <div>
             password
-        <input type="text"
+        <input 
+          data-testid='password'
+          type="text"
           value={password}
           name="Password"
           onChange={({ target }) => setPassword(target.value)} />

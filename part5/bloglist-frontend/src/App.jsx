@@ -31,7 +31,10 @@ const App = () => {
     setUser(null)
   }
 
+
+
   const createBlog = async (blogObject) => {
+    blogFormRef.current.toggleVisibility()
     try {
       const returnedBlog = await blogService.createBlog(blogObject)
       setBlogs(blogs.concat(returnedBlog))
@@ -50,7 +53,8 @@ const App = () => {
     }
   }
   const deleteBlog = async (id) => {
-    const blogDeleter = await blogService.deleteBlog(id)
+    console.log(id)
+     await blogService.deleteBlog(id)
     console.log('blog deleted')
     setBlogs(blogs.filter(blog => blog.id !== id))
   }

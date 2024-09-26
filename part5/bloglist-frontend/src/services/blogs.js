@@ -27,6 +27,7 @@ const updateLikes = async (id, blogObject) => {
 }
 
 const deleteBlog = async (id) => {
+  console.log(id, "The id being sent")
   const config = {
     headers: { Authorization: token },
   }
