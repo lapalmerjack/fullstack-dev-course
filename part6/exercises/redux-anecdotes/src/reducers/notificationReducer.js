@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ /* eslint-disable no-unused-vars */
 import { createSlice } from '@reduxjs/toolkit'
 
 
@@ -14,10 +14,20 @@ const notificationSlice = createSlice({
         setEmpty(state) {
             return '';
         }
+      
     }
 })
 
 
 export const { setMessage, setEmpty } = notificationSlice.actions
+
+export const setNotification = (message, time) => {
+    return async (dispatch) => {
+        console.log('IN IT TO WIN')
+        dispatch(setMessage(message))
+        const newTime = time * 1000
+        setTimeout(() => { dispatch(setEmpty())}, newTime)
+    }
+}
 
 export default notificationSlice.reducer
