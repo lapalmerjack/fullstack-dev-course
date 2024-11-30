@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateVote } from '../reducers/anecdoteReducer'
 
 
-import { setEmpty, setMessage, setNotification } from "../reducers/notificationReducer";
+import { setNotification } from "../reducers/notificationReducer";
 
 
 const Anecdote = ({ anecdote, handleClick }) => {
@@ -44,10 +44,6 @@ const Anecdotes = () => {
 
     
     }
-
-    
-    
-
     return(
         <div>
               {sortByVotes.map(anecdote =>

@@ -1,3 +1,4 @@
+
 const anecdotesAtStart = [
     'This is one of my anecdotes',
     'Adding manpower to a late software project makes it later!',
@@ -5,7 +6,7 @@ const anecdotesAtStart = [
     'Nickelback was one of the best worst bands of all time'
 ]
 
-const getId = () => Math.floor(Math.random() * 10000)
+
 
 const anecdotes = (anecdote, index) => {
     return {

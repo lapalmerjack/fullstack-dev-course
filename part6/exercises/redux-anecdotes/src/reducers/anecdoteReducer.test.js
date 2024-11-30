@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import anecdoteReducer from "./anecdoteReducer";
 import deepFreeze from 'deep-freeze'
 import initialState from "./helperAnecdoteList";
@@ -16,6 +17,7 @@ describe('anecdoteReducer', () => {
         const newState = anecdoteReducer(state, action)
         
         
+        // eslint-disable-next-line no-undef
         expect(newState).toHaveLength(1)
         expect(newState.map(s => s.anecdote)).toContain(action.payload.anecdote)
     })

@@ -1,27 +1,24 @@
- /* eslint-disable no-unused-vars */
-import { createSlice } from '@reduxjs/toolkit'
-
+import { createSlice } from "@reduxjs/toolkit";
 
 
 const notificationSlice = createSlice({
-    name: 'notification',
+    name: "notification",
     initialState: '',
     reducers: {
         setMessage(state, action) {
-            console.log(action.payload + 'is being hit')
+            console.log(action.payload, 'is my payload')
             return action.payload
         },
         setEmpty(state) {
             return '';
         }
-      
     }
 })
-
 
 export const { setMessage, setEmpty } = notificationSlice.actions
 
 export const setNotification = (message, time) => {
+    console.log('Setting message', message)
     return async (dispatch) => {
         dispatch(setMessage(message))
         const newTime = time * 1000
